@@ -1,0 +1,330 @@
+body, html {
+    /* Sayfa kenar boşluklarını sıfırlayıp tam ekran yüksekliğini kullan */
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+#game-container {
+    display: flex;       /* Harita ve Kontrol Panelini yan yana hizala */
+    height: 100vh;       /* Görüntü alanı yüksekliğini (viewport height) doldur */
+}
+
+#map {
+    flex-grow: 1;        /* Haritanın kalan tüm yatay alanı kaplamasını sağlar */
+    height: 100%;
+    min-width: 60%;      /* Haritanın ekranın en az %60'ını kaplamasını sağla */
+    background-color: #e0f2f1; /* Harita yüklenene kadar görünen arka plan */
+}
+
+#controls {
+    width: 400px;        /* Kontrol panelinin sabit genişliği */
+    padding: 20px;
+    background-color: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1); /* Hafif gölge efekti */
+    overflow-y: auto;    /* İçerik taşarsa dikey kaydırma çubuğu */
+}
+
+/* Tipografi ve Form Stilleri */
+h1 {
+    color: #00796b; /* Koyu Turkuaz rengi */
+    margin-top: 0;
+}
+
+#stats {
+    font-weight: bold;
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+#guess-form input {
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+}
+
+#guess-form button {
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #00796b;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#guess-form button:hover {
+    background-color: #004d40;
+}
+
+#guess-list {
+    list-style: none;
+    padding: 0;
+}
+
+#guess-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9em;
+}
+#start-modal {
+    /* Konumu sabitle, haritanın üstünde kalması için */
+    position: absolute; 
+    z-index: 1000; /* Harita ve kontrollerden üstte */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* İçeriği (modal-content) ortalamak için flex kullan */
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    
+    /* Arka planı şeffaf tutar, sadece içerik kutusu belirginleşir */
+    background-color: transparent; 
+}
+
+/* 2. Modal İçerik Kutusu (Kurallar ve Buton) */
+.modal-content {
+    /* Hafif şeffaf beyaz kutu */
+    background-color: rgba(255, 255, 255, 0.95); 
+    padding: 30px 40px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* Belirgin gölge */
+    width: 90%;
+    max-width: 550px; /* Kutunun maksimum genişliği */
+    text-align: left; 
+    /* game-container'ın ortasına gelmesi için margin-top/bottom ayarlanabilir */
+    margin: auto; 
+}
+
+/* 3. Başlat Butonu (Harita üzerinde belirgin ve ortalanmış) */
+#start-game-button {
+    /* Butonu ortalamak için */
+    display: block; 
+    width: 80%;
+    max-width: 300px;
+    margin: 25px auto 0 auto; 
+    padding: 12px 20px;
+    background-color: #00796b; /* Koyu Turkuaz */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+#start-game-button:hover {
+    background-color: #004d40;
+}
+
+/* Modal içindeki metinler için küçük düzenlemeler */
+.modal-content h2 {
+    color: #00796b;
+    text-align: center;
+    margin-top: 0;
+}
+.modal-content h3 {
+    margin-top: 20px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 5px;
+}
+.modal-content ul {
+    padding-left: 20px;
+    margin-bottom: 25px;
+}
+/* --- YENİ TEKRAR OYNA BUTONU STİLİ --- */
+
+#restart-button {
+    /* Genel Görünüm */
+    width: 100%; 
+    padding: 15px 10px;
+    margin-top: 25px !important; /* Diğer elementlerden biraz ayrım */
+    box-sizing: border-box;
+    
+    /* Renkler */
+    background-color: #00796b; /* Koyu Turkuaz (Kontrollerinizle uyumlu) */
+    color: white;
+    border: none;
+    border-radius: 8px; /* Yumuşak köşeler */
+    
+    /* Font ve Efektler */
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Hafif gölge */
+    transition: all 0.2s ease-in-out;
+}
+
+#restart-button:hover {
+    background-color: #004d40; /* Koyu hover rengi */
+    transform: translateY(-2px); /* Hafif yukarı kayma efekti */
+}
+
+#restart-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+/* --- YENİ İPUCU KUTUSU STİLİ (#hint-box) --- */
+
+#hint-box {
+    margin: 20px 0; /* Üstten ve alttan boşluk */
+    padding: 15px; /* İç boşluk */
+    border: 2px solid #00796b; /* Koyu Turkuaz çerçeve */
+    background-color: #e0f2f1; /* Açık su yeşili arka plan */
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+#hint-box h3 {
+    color: #00796b;
+    font-size: 1.1em;
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: none; /* Çerçeveli başlık stilini kaldırdık */
+}
+
+#city-hint-text {
+    font-size: 1em;
+    line-height: 1.4;
+    font-weight: 500;
+}
+/* --- YENİ EKLENECEK CSS PARÇALARI --- */
+
+/* --- YENİ CAN SAYACI STİLİ (#lives-display) --- */
+
+#lives-display {
+    position: absolute; /* Haritanın üzerinde serbestçe konumlanabilir */
+    top: 20px;
+    
+    /* Konum: Kontrol panelinin bittiği yerden 20px sola (harita üstü sağ köşe) */
+    right: 450px; 
+    
+    z-index: 900; 
+    
+    padding: 10px 15px;
+    background-color: rgba(255, 255, 255, 0.95); /* Şeffaf beyaz kutu */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    
+    /* Kalpleri yan yana ortalamak için */
+    display: flex;
+    align-items: center;
+    gap: 10px; 
+}
+
+/* Kalp ikonlarını içeren span'lar (renderLives() tarafından oluşturulan) */
+#lives-display span {
+    font-size: 1.8em; /* Daha büyük kalpler */
+    color: rgb(230, 8, 8) !important; /* Kırmızı rengi zorunlu kıl */
+}
+/* --- YENİ İPUCU KUTUSU STİLİ (#hint-box) --- */
+
+#hint-box {
+    margin: 20px 0; 
+    padding: 15px; 
+    border: 2px solid #00796b; 
+    background-color: #e0f2f1; 
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+#hint-box h3 {
+    color: #00796b;
+    font-size: 1.1em;
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: none;
+}
+
+#city-hint-text {
+    font-size: 1em;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+/* --- MODAL VE TEKRAR OYNA BUTONU STİLLERİ (Öncekilerin üzerine yazın) --- */
+
+#start-modal {
+    position: absolute; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    background-color: transparent; 
+}
+
+.modal-content {
+    background-color: rgba(255, 255, 255, 0.95); 
+    padding: 30px 40px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+    width: 90%;
+    max-width: 550px; 
+    text-align: left; 
+    margin: auto; 
+}
+
+#start-game-button {
+    display: block; 
+    width: 80%;
+    max-width: 300px;
+    margin: 25px auto 0 auto; 
+    padding: 12px 20px;
+    background-color: #00796b; 
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+#start-game-button:hover {
+    background-color: #004d40;
+}
+
+/* Tekrar Oyna Butonu */
+#restart-button {
+    width: 100%; 
+    padding: 15px 10px;
+    margin-top: 25px; 
+    box-sizing: border-box;
+    background-color: #00796b; 
+    color: white;
+    border: none;
+    border-radius: 8px; 
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); 
+    transition: all 0.2s ease-in-out;
+}
+
+#restart-button:hover {
+    background-color: #004d40; 
+    transform: translateY(-2px); 
+}
+
+#restart-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
