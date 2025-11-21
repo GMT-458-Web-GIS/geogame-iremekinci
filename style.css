@@ -74,36 +74,36 @@ h1 {
     border-bottom: 1px solid #eee;
     font-size: 0.9em;
 }
-#start-modal {
-    /* Konumu sabitle, haritanın üstünde kalması için */
-    position: absolute; 
-    z-index: 1000; /* Harita ve kontrollerden üstte */
+#start-modal, #mode-select-modal {
+    /* Konumu sabitler ve tüm ekranı kaplar */
+    position: fixed; /* 'absolute' yerine 'fixed' kullanmak daha güvenlidir. */
+    z-index: 10000; /* Diğer her şeyin (harita, kontroller) üstünde olmalı */
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     
-    /* İçeriği (modal-content) ortalamak için flex kullan */
+    /* İÇERİĞİ ORTALAR */
     display: flex; 
     justify-content: center;
     align-items: center;
     
-    /* Arka planı şeffaf tutar, sadece içerik kutusu belirginleşir */
-    background-color: transparent; 
+    /* KRİTİK: Arka planı karartır (Overlay efekti) */
+    background-color: rgba(0, 0, 0, 0.7); /* %70 opaklıkta siyah arka plan */
 }
 
-/* 2. Modal İçerik Kutusu (Kurallar ve Buton) */
+/* Modal İçerik Kutusu (Kurallar ve Buton) */
 .modal-content {
-    /* Hafif şeffaf beyaz kutu */
-    background-color: rgba(255, 255, 255, 0.95); 
+    /* Eski rgba(255, 255, 255, 0.95) stilini beyaz arka plan ile DEĞİŞTİRİN */
+    background-color: white; 
     padding: 30px 40px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* Belirgin gölge */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5); /* Daha belirgin gölge */
     width: 90%;
-    max-width: 550px; /* Kutunun maksimum genişliği */
+    max-width: 550px; 
     text-align: left; 
-    /* game-container'ın ortasına gelmesi için margin-top/bottom ayarlanabilir */
+    /* Ekranın ortasına gelmesi için */
     margin: auto; 
 }
 
@@ -327,4 +327,39 @@ h1 {
 #restart-button:active {
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+/* --- YENİ MOD SEÇİM BUTONLARI STİLİ --- */
+
+.mode-button {
+    padding: 12px 20px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    /* Varsayılan renk: Koyu Turkuaz */
+    background-color: #00796b; 
+    color: white;
+}
+
+.mode-button:hover {
+    background-color: #004d40;
+    transform: translateY(-1px);
+}
+
+#hint-district {
+    background-color: #008000; /* Yeşil */
+}
+#hint-capital {
+    background-color: #FFA500; /* Turuncu */
+}
+
+.mode-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
 }

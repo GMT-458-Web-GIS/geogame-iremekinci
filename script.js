@@ -1,5 +1,5 @@
 // ==========================================================
-// 1. GLOBAL DEĞİŞKENLER VE AYARLAR
+// 1. GLOBAL VARIABLES AND SETTINGS
 // ==========================================================
 let map;
 let turkeyLayer;
@@ -7,42 +7,41 @@ let secretCityFeature;
 let guessCount = 0;
 let provinceData = []; 
 
-let isGameStarted = false; // Oyunun durumunu takip eder
+let isGameStarted = false; // Tracks the game state
 
-// Gizli şehrin adını ve koordinatlarını tutacak değişkenler
+// Variables to hold the hidden city's name and coordinates
 let SECRET_CITY_NAME = '';
 let SECRET_CITY_COORDINATES = []; 
 
-// Zamanlayıcı değişkenleri
+// Timer variables
 let TIMER_SECONDS = 60; 
 let countdownInterval;
 
-// YENİ: Can Sistemi Değişkenleri
+// NEW: Life System Variables
 const MAX_LIVES = 3;
-const GUESSES_PER_LIFE = 5;
+const GUESSES_PER_LIFE = 5; // UPDATED: Lose 1 life every 5 incorrect guesses
 let currentLives = MAX_LIVES;
-let guessCounter = 0; // 10 tahmine ulaşmayı sayar
+let guessCounter = 0; 
 
-// Puanlama ve Renk Ayarları (uzaklığa göre Red-Yellow-Green skalası - TERS MANTIK)
+// Scoring and Color Settings (REVERSE Red-Yellow-Green scale)
 const COLORS = [
-    { maxDistanceKm: 100, color: '#008000' },     
+    { maxDistanceKm: 100, color: '#008000' },     // Dark Green (Closest)
     { maxDistanceKm: 250, color: '#32CD32' },   
     { maxDistanceKm: 450, color: '#ADFF2F' },   
-    { maxDistanceKm: 650, color: '#FFD700' },   
+    { maxDistanceKm: 650, color: '#FFD700' },   // Yellow
     { maxDistanceKm: 850, color: '#FFA500' },   
-    { maxDistanceKm: 1000, color: '#FF4500' }, 
-    { maxDistanceKm: Infinity, color: '#FF0000' } 
+    { maxDistanceKm: 1000, color: '#FF4500' }, // Dark Orange
+    { maxDistanceKm: Infinity, color: '#FF0000' } // Red (Farthest)
 ];
 
-// YENİ İP UCUNU YÖNETEN VERİ YAPISI
-// YENİ İP UCUNU YÖNETEN VERİ YAPISI (ZORLUK SEVİYESİ YÜKSEK İLÇELER)
+// NEW HINT DATA (Lesser-known districts)
 const SAMPLE_DISTRICT_DATA = {
     "Adana": "Tufanbeyli", "Adıyaman": "Sincik", "Afyonkarahisar": "Kızılören", "Ağrı": "Hamur", "Aksaray": "Gülağaç",
     "Amasya": "Göynücek", "Ankara": "Güdül", "Antalya": "İbradı", "Ardahan": "Posof", "Artvin": "Şavşat",
     "Aydın": "Karacasu", "Balıkesir": "Savaştepe", "Bartın": "Kurucaşile", "Batman": "Gercüş", "Bayburt": "Aydıntepe",
     "Bilecik": "Yenipazar", "Bingöl": "Yayla", "Bitlis": "Mutki", "Bolu": "Dörtdivan", "Burdur": "Çeltikçi",
     "Bursa": "Harmancık", "Çanakkale": "Eceabat", "Çankırı": "Atkaracalar", "Çorum": "Uğurludağ", "Denizli": "Kale",
-    "Diyarbakır": "Çüngüş", "Düzce": "Çilimli", "Edirne": "Lalapaşa", "Elazığ": "Ağın", "Erzincan": "Otlukbeli",
+    "Diyarbakır": "Çüngüş", "Düzce": "Akçakoca", "Edirne": "Lalapaşa", "Elazığ": "Keban", "Erzincan": "Otlukbeli",
     "Erzurum": "Çat", "Eskişehir": "Sarıcakaya", "Gaziantep": "Karkamış", "Giresun": "Çamoluk", "Gümüşhane": "Şiran",
     "Hakkari": "Çukurca", "Hatay": "Yayladağı", "Iğdır": "Karakoyunlu", "Isparta": "Yenişarbademli", "İstanbul": "Şile",
     "İzmir": "Beydağ", "Kahramanmaraş": "Ekinözü", "Karabük": "Eflani", "Karaman": "Ayrancı", "Kars": "Akyaka",
@@ -51,12 +50,12 @@ const SAMPLE_DISTRICT_DATA = {
     "Manisa": "Köprübaşı", "Mardin": "Ömerli", "Mersin": "Çamlıyayla", "Muğla": "Kavaklıdere", "Muş": "Korkut",
     "Nevşehir": "Acıgöl", "Niğde": "Çamardı", "Ordu": "Korgan", "Osmaniye": "Hasanbeyli", "Rize": "İkizdere",
     "Sakarya": "Taraklı", "Samsun": "Yakakent", "Şanlıurfa": "Harran", "Siirt": "Aydınlar", "Sinop": "Saraydüzü",
-    "Sivas": "Gürün", "Şırnak": "Beytüşşebap", "Tekirdağ": "Şarköy", "Tokat": "Almus", "Trabzon": "Köprübaşı",
-    "Tunceli": "Nazimiye", "Uşak": "Ulubey", "Van": "Bahçesaray", "Yalova": "Armutlu", "Yozgat": "Aydıncık",
-    "Zonguldak": "Alaplı"
+    "Sivas": "Gürün", "Şırnak": "Beytüşşebap", "Tekirdağ": "Şarköy", "Tokat": "Almus", "Trabzon": "Akçaabat",
+    "Tunceli": "Nazimiye", "Uşak": "Ulubey", "Van": "Bahçesaray", "Yalova": "Armutlu", "Yozgat": "Sorgun",
+    "Zonguldak": "Ereğli"
 };
 
-// DOM elemanları
+// DOM elements
 const guessInput = document.getElementById('city-input');
 const guessForm = document.getElementById('guess-form');
 const guessList = document.getElementById('guess-list');
@@ -67,26 +66,24 @@ const startModal = document.getElementById('start-modal');
 const startGameButton = document.getElementById('start-game-button');
 const restartButton = document.getElementById('restart-button'); 
 
-// GÜNCELLENEN CAN/İPUCU DOM ELEMANLARI
-// GÜNCELLENEN CAN/İPUCU DOM ELEMANLARI
-const livesDisplay = document.getElementById('lives-display'); // Artık harita üstündeki div'i hedefliyor
+// UPDATED LIFE/HINT DOM ELEMENTS
+const livesDisplay = document.getElementById('lives-display'); 
 const cityHintText = document.getElementById('city-hint-text'); 
-// ...
 
-// YENİ SKOR TABLOSU DOM ELEMANLARI
+// NEW SCOREBOARD DOM ELEMENTS
 const usernameInput = document.getElementById('username-input');
 const saveUsernameButton = document.getElementById('save-username-button');
 const welcomeMessage = document.getElementById('welcome-message');
 const highScoreList = document.getElementById('high-score-list');
 const userSetupDiv = document.getElementById('user-setup'); 
 
-// YENİ SKOR TABLOSU DEĞİŞKENLERİ
-let currentUsername = 'Anonim'; // Varsayılan kullanıcı adı
-const SCORE_KEY = 'geoGameHighScores'; // Local Storage anahtarı
+// NEW SCOREBOARD VARIABLES
+let currentUsername = 'Anonim'; 
+const SCORE_KEY = 'geoGameHighScores'; 
 
 
 // ==========================================================
-// YARDIMCI FONKSİYONLAR
+// HELPER FUNCTIONS
 // ==========================================================
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -103,70 +100,76 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return R * c; 
 }
 
+// Hint Text simplified and removed "visual guess cue" reference
 function generateHint() {
     const district = SAMPLE_DISTRICT_DATA[SECRET_CITY_NAME];
     
     if (district) {
-        cityHintText.innerHTML = `Gizli Şehir İpucu: Aradığınız ilin önemli bir ilçesi ${district}'dir.`;
+        // HINT TEXT DÜZELTİLDİ: Sadeleştirildi.
+        cityHintText.innerHTML = `Hidden City Hint: A representative district of the province you are looking for is ${district}.`;
     } else {
-        cityHintText.innerHTML = `Gizli şehirle ilgili ilçe ipucu bulunamadı.`;
+        cityHintText.innerHTML = `No district hint found for the hidden city.`;
     }
 }
 
 function renderLives() {
-    // Hata olmadığından emin olmak için livesDisplay null kontrolü ekledik
     if (!livesDisplay) return; 
 
     let heartsHTML = '';
     
     for (let i = 0; i < currentLives; i++) {
-        heartsHTML += '<span style="color: red; font-size: 1.2em; margin: 0 1px;">❤️</span>';
+        // Large red hearts
+        heartsHTML += '<span style="color: red; font-size: 1.8em; margin: 0 2px;">❤️</span>';
     }
     
     for (let i = 0; i < MAX_LIVES - currentLives; i++) {
-        heartsHTML += '<span style="color: lightgray; font-size: 1.2em; margin: 0 1px;">🤍</span>';
+        // Grey/empty hearts
+        heartsHTML += '<span style="color: lightgray; font-size: 1.8em; margin: 0 2px;">🤍</span>';
     }
     
     livesDisplay.innerHTML = heartsHTML;
 }
 
-// YENİ: Local Storage'dan skorları çeker, sıralar ve döndürür
 function getHighScores() {
     const scores = localStorage.getItem(SCORE_KEY);
     return scores ? JSON.parse(scores).sort((a, b) => {
-        // 1. Kural: Daha az tahmin
         if (a.score !== b.score) {
             return a.score - b.score;
         }
-        // 2. Kural: Tahmin eşitse daha kısa süre
         return a.time - b.time;
     }) : [];
 }
 
-// YENİ: Skor tablosunu günceller ve listeyi render eder
 function renderHighScores() {
     const scores = getHighScores();
     highScoreList.innerHTML = '';
     
-    scores.slice(0, 5).forEach((item, index) => { // İlk 10 skoru göster
+    scores.slice(0, 5).forEach((item, index) => { 
         const listItem = document.createElement('li');
-        const timeDisplay = item.time > 0 ? `(${item.time} sn)` : ''; 
+        const timeDisplay = item.time > 0 ? `(${item.time} sec)` : ''; 
         
         listItem.innerHTML = `
-            <strong>${index + 1}. ${item.username}</strong>: ${item.score} Tahmin ${timeDisplay}
+            <strong>${index + 1}. ${item.username}</strong>: ${item.score} Guesses ${timeDisplay}
         `;
         highScoreList.appendChild(listItem);
     });
     
     if (scores.length === 0) {
-        highScoreList.innerHTML = '<li>Henüz skor yok. İlk siz olun!</li>';
+        highScoreList.innerHTML = '<li>No scores yet. Be the first!</li>';
     }
 }
 
-// YENİ: Kullanıcı adını kaydeder (Hoş geldin mesajı ve form gizleme/gösterme)
-// YENİ: Kullanıcı adını kaydeder (Hoş geldin mesajı ve form gizleme/gösterme)
+function updateWelcomeDisplay(username) {
+    if (!userSetupDiv) return;
+    
+    userSetupDiv.innerHTML = `
+        <p id="welcome-message" style="font-weight: bold; color: #00796b; margin-top: 10px; text-align: center;">
+            Welcome, ${username}!
+        </p>
+    `;
+}
+
 function handleUsernameSave() {
-    // Null check
     if (!usernameInput || !userSetupDiv) return;
 
     const username = usernameInput.value.trim();
@@ -174,31 +177,17 @@ function handleUsernameSave() {
         currentUsername = username;
         localStorage.setItem('geoGameUsername', username);
         
-        // Hoş geldin mesajını göstermek için yeni bir fonksiyona yönlendiriyoruz
         updateWelcomeDisplay(currentUsername);
         
-        // Modalın tekrar açılmasını sağlar
         startModal.style.display = 'flex';
     } else {
-        // Uyarı sadece bu butona tıklandığında (form boşken) verilir
-        alert('Kullanıcı adı en az 3 karakter olmalıdır.');
+        alert('Username must be at least 3 characters long.');
     }
-}
-
-// YENİ YARDIMCI FONKSİYON: Hoş Geldin mesajını gösterir ve formu gizler
-function updateWelcomeDisplay(username) {
-    if (!userSetupDiv) return;
-    
-    userSetupDiv.innerHTML = `
-        <p id="welcome-message" style="font-weight: bold; color: #00796b; margin-top: 10px; text-align: center;">
-            Hoş Geldin, ${username}!
-        </p>
-    `;
 }
 
 
 // ==========================================================
-// 2. HARİTA İL SINIRLARINI VE GİZLİ ŞEHRİ YÜKLEME
+// 2. MAP PROVINCE BOUNDARIES AND HIDDEN CITY LOADING
 // ==========================================================
 
 function initMap() {
@@ -212,7 +201,7 @@ function initMap() {
     fetch('tr.json')
         .then(response => {
             if (!response.ok) {
-                throw new Error(`HTTP hata kodu: ${response.status}`);
+                throw new Error(`HTTP error code: ${response.status}`);
             }
             return response.json();
         })
@@ -224,17 +213,14 @@ function initMap() {
                 provinceNames.push({ normalized: nameTR, original: feature.properties.name });
             });
 
-            // YENİ: Skorları yükle ve tabloyu göster
             renderHighScores();
             
-            // YENİ: Kayıtlı kullanıcı adı varsa sadece ekranı güncelle
             const savedUsername = localStorage.getItem('geoGameUsername');
             if (savedUsername) {
                 currentUsername = savedUsername;
-                updateWelcomeDisplay(currentUsername); // Uyarıyı tetiklemeden hoş geldin der
-                startModal.style.display = 'flex'; // Modalı açar
+                updateWelcomeDisplay(currentUsername); 
+                startModal.style.display = 'flex';
             } else {
-                // Kullanıcı adı kaydedilmemişse, modali direkt açıyoruz (Kayıt formu görünecektir).
                 startModal.style.display = 'flex';
             }
 
@@ -243,21 +229,18 @@ function initMap() {
                 onEachFeature: onEachFeature 
             }).addTo(map);
             
-            // Oyun başlamadan önce canları render et
             renderLives();
             
-            // Harita yüklendi, oyunu başlatmayı engelle
             guessInput.disabled = true;
             guessForm.querySelector('button').disabled = true;
         })
         .catch(error => {
-            console.error("GeoJSON verisi yüklenirken hata oluştu:", error);
-            // HATA MESAJI GÖSTERİMİ
-            alert(`Harita verisi yüklenemedi: ${error.message}. 'tr.json' dosyasının adının ve içeriğinin doğru olduğundan emin olun.`);
+            console.error("Error loading GeoJSON data:", error);
+            alert(`Map data could not be loaded: ${error.message}. Ensure 'tr.json' is named and contains correct data.`);
         });
 }
 
-// Varsayılan il stili
+// Default province style
 function defaultStyle(feature) {
     return {
         fillColor: '#E0E0E0', 
@@ -268,7 +251,7 @@ function defaultStyle(feature) {
     };
 }
 
-// İl etkileşimleri (hover/tıklama)
+// Province interactions (hover/click)
 function onEachFeature(feature, layer) {
     layer.on({
         mouseover: highlightFeature,
@@ -306,10 +289,10 @@ function onMapClick(e) {
 }
 
 // ==========================================================
-// 3. OYUN BAŞLATMA VE BİTİRME MANTIĞI
+// 3. GAME START AND END LOGIC
 // ==========================================================
 
-// Zamanlayıcı fonksiyonu
+// Timer function
 function startTimer() {
     let timeLeft = TIMER_SECONDS;
     timerSpan.textContent = timeLeft;
@@ -320,7 +303,7 @@ function startTimer() {
 
         if (timeLeft <= 0) {
             clearInterval(countdownInterval);
-            endGame(`⏰ SÜRE BİTTİ! Gizli şehir ${SECRET_CITY_NAME} idi. Skorunuz: ${guessCount}`);
+            endGame(`⏰ TIME UP! The hidden city was ${SECRET_CITY_NAME}. Your score: ${guessCount}`);
         }
     }, 1000); 
 }
@@ -330,44 +313,44 @@ function startNewGame() {
     guessList.innerHTML = '';
     guessCountSpan.textContent = guessCount;
     
-    // Can ve tahmin sayacını sıfırla
+    // Reset Lives and counter
     currentLives = MAX_LIVES;
     guessCounter = 0; 
-    renderLives(); // Kalpleri ekrana çiz
+    renderLives(); 
 
-    // Formu etkinleştir
+    // Enable form
     guessInput.disabled = false;
     guessForm.querySelector('button').disabled = false;
     guessForm.style.display = 'block';
     
-    // Önceki işaretçileri temizle
+    // Clear previous markers
     map.eachLayer(layer => {
         if (layer instanceof L.CircleMarker) {
             map.removeLayer(layer);
         }
     });
 
-    // Zamanlayıcıyı başlatma
+    // Start timer
     clearInterval(countdownInterval);
     timerSpan.textContent = TIMER_SECONDS;
     startTimer(); 
 
-    // Tüm illeri varsayılan stile sıfırla
+    // Reset all provinces to default style
     if (turkeyLayer) {
         turkeyLayer.eachLayer(layer => {
             layer.setStyle(defaultStyle(layer.feature));
         });
     }
     
-    // Rastgele gizli şehir seçme
+    // Pick random hidden city
     const randomIndex = Math.floor(Math.random() * provinceData.length);
     secretCityFeature = provinceData[randomIndex];
     SECRET_CITY_NAME = secretCityFeature.properties.name;
     
-    // İpucunu üret ve göster
+    // Generate and display hint
     generateHint();
     
-    // Gizli şehrin merkez koordinatını bulma
+    // Find coordinates of the hidden city center
     turkeyLayer.eachLayer(layer => {
         if (layer.feature.properties.name === SECRET_CITY_NAME) {
             const center = layer.getBounds().getCenter();
@@ -375,24 +358,24 @@ function startNewGame() {
         }
     });
 
-    console.log(`Gizli şehir (Sadece geliştiriciler için): ${SECRET_CITY_NAME}`);
+    console.log(`Hidden city (Dev only): ${SECRET_CITY_NAME}`);
     
     map.flyToBounds(turkeyLayer.getBounds(), {padding: L.point(50, 50)});
     
-    isGameStarted = true; // Oyun başladı
+    isGameStarted = true; // Game started
 }
 
 function endGame(message) {
-    clearInterval(countdownInterval); // Zamanlayıcıyı durdur
+    clearInterval(countdownInterval); 
     
     guessInput.disabled = true;
     guessForm.querySelector('button').disabled = true;
     guessForm.style.display = 'none';
 
-    console.log(`Oyun Bitti! ${message}`); 
+    console.log(`Game Over! ${message}`); 
     
-    // YENİ: Skoru Kaydetme Mantığı (Sadece oyun kazanılırsa)
-    if (message.includes('TEBRİKLER')) { 
+    // Scoreboard Update (only if won)
+    if (message.includes('CONGRATULATIONS') || message.includes('TEBRİKLER')) { 
         const finalTime = TIMER_SECONDS - parseInt(timerSpan.textContent); 
         
         const newScore = {
@@ -405,33 +388,32 @@ function endGame(message) {
         scores.push(newScore);
         localStorage.setItem(SCORE_KEY, JSON.stringify(scores));
         
-        // Yeni skoru tabloya yansıt
         renderHighScores();
     }
     
-    // Tekrar Oyna Butonunu göster
-    restartButton.textContent = `TEKRAR OYNA (${guessCount} Tahmin)`; 
+    // Show Play Again button
+    restartButton.textContent = `PLAY AGAIN (${guessCount} Guesses)`; 
     restartButton.style.display = 'block';
 
-    // Gizli şehre büyük bir işaretleyici (marker) ekle
+    // Add marker to the hidden city
     const lat = SECRET_CITY_COORDINATES[0];
     const lng = SECRET_CITY_COORDINATES[1];
     
     let winPopupContent;
-    if (message.includes('TEBRİKLER')) {
+    if (message.includes('TEBRİKLER') || message.includes('CONGRATULATIONS')) {
         winPopupContent = `
             <div style="text-align: center;">
-                <h4 style="color: #008000;">🎉 TEBRİKLER! 🎉</h4>
-                <p><strong>Gizli Şehir: ${SECRET_CITY_NAME}</strong></p>
-                <p>Sadece <strong>${guessCount}</strong> tahminde buldunuz!</p>
+                <h4 style="color: #008000;">🎉 CONGRATULATIONS! 🎉</h4>
+                <p><strong>The Hidden City was: ${SECRET_CITY_NAME}</strong></p>
+                <p>You found it in only <strong>${guessCount}</strong> guesses!</p>
             </div>
         `;
-    } else { // Süre bittiğinde veya canlar bitince
+    } else { // Time up or lives exhausted
         winPopupContent = `
             <div style="text-align: center;">
-                <h4 style="color: #FF0000;">💔 KAYBETTİNİZ 💔</h4>
-                <p>Gizli Şehir: <strong>${SECRET_CITY_NAME}</strong></p>
-                <p>Skorunuz: <strong>${guessCount}</strong> tahmin.</p>
+                <h4 style="color: #FF0000;">💔 GAME OVER 💔</h4>
+                <p>The Hidden City was: <strong>${SECRET_CITY_NAME}</strong></p>
+                <p>Your score: <strong>${guessCount}</strong> guesses.</p>
             </div>
         `;
     }
@@ -447,16 +429,15 @@ function endGame(message) {
       .bindPopup(winPopupContent) 
       .openPopup(); 
     
-    // Gizli şehrin sınırlarını kalıcı olarak vurgula
+    // Permanently highlight the hidden province boundary
     turkeyLayer.eachLayer(layer => {
         if (layer.feature.properties.name === SECRET_CITY_NAME) {
             layer.setStyle({
-                fillColor: '#008000', // Kazanılan şehir koyu yeşil olsun
-                color: 'gold',        // Sınır çizgisi altın
-                weight: 5,            // Kalın sınır
+                fillColor: '#008000', 
+                color: 'gold',        
+                weight: 5,           
                 fillOpacity: 0.9
             });
-            // Haritayı kazanılan şehre yakınlaştır
             map.flyToBounds(layer.getBounds(), {padding: L.point(20, 20), duration: 1});
         }
     });
@@ -466,7 +447,7 @@ function endGame(message) {
 
 
 // ==========================================================
-// 4. TAHMİN İŞLEME FONKSİYONU
+// 4. GUESS PROCESSING FUNCTION
 // ==========================================================
 
 function processGuess(guessedCityName) {
@@ -477,7 +458,7 @@ function processGuess(guessedCityName) {
     const matchingProvince = provinceNames.find(p => p.normalized === normalizedGuess);
     
     if (!matchingProvince) {
-        alert('Lütfen geçerli bir Türkiye il adı girin.');
+        alert('Please enter a valid Turkish province name.');
         return;
     }
     
@@ -486,7 +467,7 @@ function processGuess(guessedCityName) {
     guessCount++;
     guessCountSpan.textContent = guessCount;
 
-    // YENİ: Tahmin sayacını artır
+    // Increment guess counter
     guessCounter++;
 
     let guessedLayer;
@@ -502,38 +483,38 @@ function processGuess(guessedCityName) {
     
     if (!guessedLayer) return;
 
-    // 1. Mesafeyi hesaplama
+    // 1. Calculate distance
     const distanceKm = calculateDistance(
         guessedCityCoordinates[0], guessedCityCoordinates[1],
         SECRET_CITY_COORDINATES[0], SECRET_CITY_COORDINATES[1]
     );
 
-    // 2. Renk ve geri bildirimi belirleme
-    let resultColor = '#FF0000'; // Default: En Uzak Renk (Kırmızı)
+    // 2. Determine color and feedback
+    let resultColor = '#FF0000'; 
     let feedback = '';
 
-    // Gizli şehri buldu mu?
+    // Check if hidden city found
     if (actualCityName === SECRET_CITY_NAME) {
-        resultColor = '#DC143C'; // Kazanma vurgu rengi
-        feedback = `🏆 TEBRİKLER! ${actualCityName} gizli şehirdi! ${guessCount} tahminde buldun.`;
+        resultColor = '#DC143C'; 
+        feedback = `🏆 TEBRİKLER! ${actualCityName} was the hidden city! You found it in ${guessCount} guesses.`;
         endGame(feedback);
         return; 
     }
     
-    // YENİ: Can Kontrolü ve Cezalandırma
+    // NEW: Life Control and Penalty (5 guesses)
     if (guessCounter % GUESSES_PER_LIFE === 0) {
         currentLives--;
-        renderLives(); // Kalpleri güncelle
+        renderLives(); // Update hearts
         
-        // Can bitince oyunu sonlandır
+        // End game if lives are 0
         if (currentLives <= 0) {
-            endGame(`💔 CANLARIN BİTTİ! ${GUESSES_PER_LIFE * MAX_LIVES} tahmin hakkını doldurdunuz. Gizli şehir ${SECRET_CITY_NAME} idi.`);
+            endGame(`💔 LIVES EXHAUSTED! You reached your limit of ${GUESSES_PER_LIFE * MAX_LIVES} guesses. The hidden city was ${SECRET_CITY_NAME}.`);
             return;
         }
     }
 
 
-    // Yakınlığa göre rengi belirle
+    // Determine color based on proximity
     for (const rule of COLORS) {
         if (distanceKm <= rule.maxDistanceKm) {
             resultColor = rule.color;
@@ -541,17 +522,17 @@ function processGuess(guessedCityName) {
         }
     }
     
-    // Geri bildirimi oluştur
+    // Create feedback
     const roundedDistance = Math.round(distanceKm);
     feedback = `${actualCityName}: ${roundedDistance} km`;
 
-    // 3. Haritadaki ili renklendirme ve işaretçi ekleme
+    // 3. Color the province and add marker
     guessedLayer.setStyle({
         fillColor: resultColor,
         fillOpacity: 0.9
     });
     
-    // Tahmin merkezine küçük bir işaretçi ekle
+    // Add small marker to the guess center
     L.circleMarker(guessedCityCoordinates, {
         radius: 4,
         color: 'black',
@@ -559,44 +540,44 @@ function processGuess(guessedCityName) {
         fillOpacity: 1
     }).addTo(map).bindPopup(`${actualCityName}: ${roundedDistance} km`).openTooltip(guessedCityCoordinates);
     
-    // 4. Tahmin listesine ekleme
+    // 4. Add to guess history
     const listItem = document.createElement('li');
     listItem.textContent = feedback;
     listItem.style.color = resultColor;
     guessList.appendChild(listItem);
     guessList.scrollTop = guessList.scrollHeight; 
     
-    // Harita Kaydırma/Yakınlaştırma
+    // Pan and zoom map
     map.flyTo(guessedCityCoordinates, 7); 
 }
 
-// Form gönderme olayını dinleme (Input alanı kullanıldığında)
+// Listen for form submission
 guessForm.addEventListener('submit', function(e) {
     e.preventDefault();
     const guessedCity = guessInput.value.trim();
     if (guessedCity) {
         processGuess(guessedCity);
-        guessInput.value = ''; // Giriş alanını temizle
+        guessInput.value = ''; // Clear input
     }
 });
 
 
-// BAŞLANGIÇ BUTONU OLAY DİNLEYİCİSİ
+// START GAME BUTTON LISTENER
 startGameButton.addEventListener('click', () => {
     startModal.style.display = 'none'; 
     startNewGame(); 
 });
 
-// TEKRAR OYNA BUTONU OLAY DİNLEYİCİSİ
+// PLAY AGAIN BUTTON LISTENER
 restartButton.addEventListener('click', () => {
-    restartButton.style.display = 'none'; // Butonu gizle
-    startNewGame(); // Oyunu sıfırla ve yeniden başlat
+    restartButton.style.display = 'none'; // Hide button
+    startNewGame(); // Reset and start new game
 });
 
-// YENİ: Kullanıcı Adı Kaydetme Olay Dinleyicisi
+// NEW: Username Save Listener
 if (saveUsernameButton) {
     saveUsernameButton.addEventListener('click', handleUsernameSave);
 }
 
-// Harita yüklendiğinde initMap'i çağır
+// Initialize map on document load
 document.addEventListener('DOMContentLoaded', initMap);

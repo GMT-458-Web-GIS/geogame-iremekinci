@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoGame: Türkiye Şehir Tahmini</title>
+    <title>GeoGame: Turkey City Guessing</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -15,19 +15,19 @@
     
     <div id="start-modal" class="modal">
         <div class="modal-content">
-            <h2>Türkiye GeoGame: Şehir Tahmini</h2>
-            <p>Gizli ilimizi bulmak için haritada bir ili tahmin edin veya adını girin.</p>
+            <h2>Turkey GeoGame: City Guessing</h2>
+            <p>Find the hidden province by guessing on the map or typing its name.</p>
             
-            <h3>Oyun Kuralları</h3>
+            <h3>Game Rules</h3>
             <ul>
-                <li>Amacınız: <strong>En az tahminde</strong> gizli şehri bulmak.</li>
-                <li>Süre Sınırı: Oyunu kazanmak için <strong>60 saniyeniz</strong> var.</li>
-                <li>Tahmin Hakkı: Her 10 yanlış tahminde 1 can kaybedersiniz. Toplam 3 canınız var.</li>
-                <li>Geri Bildirim: Her tahminde, ilinize olan uzaklığınızı (km) ve görsel tahmin ipini göreceksiniz.</li>
-                <li>Harita Renkleri (Yakınlık): Koyu Yeşil (En Yakın) &rarr; Kırmızı (En Uzak)</li>
+                <li>Goal: To find the hidden city in the fewest guesses.</li>
+                <li>Time Limit: You have 60 seconds to win the game.</li>
+                <li>Guess Allowance: You lose 1 life every 5 incorrect guesses. You have 3 lives total.</li>
+                <li>Feedback: After each guess, you will see the distance (km) to the city.</li>
+                <li>Map Colors (Proximity): Dark Green (Closest) &rarr; Red (Farthest)</li>
             </ul>
             
-            <button id="start-game-button">Oyuna Başla</button>
+            <button id="start-game-button">Start Game</button>
         </div>
     </div>
     
@@ -39,44 +39,44 @@
         <div id="map"></div>
         
         <div id="controls">
-            <h1>Türkiye GeoGame: Şehir Tahmini</h1>
+            <h1>Turkey GeoGame: City Guessing</h1>
             
             <div id="user-setup" style="margin-bottom: 20px;">
-                <input type="text" id="username-input" placeholder="Kullanıcı Adınızı Girin" required 
+                <input type="text" id="username-input" placeholder="Enter Your Username" required 
                     style="padding: 10px; width: 100%; box-sizing: border-box; margin-bottom: 10px;">
                 
                 <button id="save-username-button" type="button" 
                     style="padding: 10px; width: 100%; background-color: #00796b; color: white; border: none; font-weight: bold; cursor: pointer;">
-                    Adı Kaydet
+                    Save Name
                 </button>
                 
                 <p id="welcome-message" style="font-weight: bold; color: #00796b; margin-top: 10px; text-align: center; display: none;"></p>
             </div>
             <div id="hint-box" style="margin-top: 15px; padding: 10px; border: 1px solid #00796b; background-color: #e0f2f1;">
-                <h3>🔍 Gizli Şehir İpucu</h3>
-                <p id="city-hint-text">Oyun başladığında ilk ipucu burada görünecektir...</p>
+                <h3>🔍 Hidden City Hint</h3>
+                <p id="city-hint-text">The first hint will appear here when the game starts...</p>
             </div>
             
-            <p>Gizli şehri bulmak için tahminde bulunun. Amaç en az tahminde bulmaktır!</p>
+            <p>Find the hidden city by guessing. The goal is to use the fewest guesses!</p>
             
             <div id="stats">
                 
-                Tahmin Sayısı: <span id="guess-count">0</span>
+                Guess Count: <span id="guess-count">0</span>
                 <br>
-                Kalan Süre: <span id="timer">60</span> saniye
+                Time Remaining: <span id="timer">60</span> seconds
                 
             </div>
             
-            <button id="restart-button" style="display: none; margin-top: 25px;" type="button">Tekrar Oyna</button>
+            <button id="restart-button" style="display: none; margin-top: 25px;" type="button">Play Again</button>
             
             <form id="guess-form">
-                <input type="text" id="city-input" placeholder="Şehir adı girin (Örn: Ankara)..." required>
-                <button type="submit">Tahmin Et</button>
+                <input type="text" id="city-input" placeholder="Enter city name (Ex: Ankara)..." required>
+                <button type="submit">Guess</button>
             </form>
             
-            <h3 style="margin-top: 30px;">🏆 En İyi Skorlar (Az Tahmin)</h3>
+            <h3 style="margin-top: 30px;">🏆 Best Scores (Fewest Guesses)</h3>
             <ol id="high-score-list" style="padding-left: 20px;"></ol>
-            <h3>Tahmin Geçmişi ve Geri Bildirim</h3>
+            <h3>Guess History and Feedback</h3>
             <ul id="guess-list">
                 </ul>
         </div>
