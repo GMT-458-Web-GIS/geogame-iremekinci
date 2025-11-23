@@ -144,7 +144,7 @@ h1 {
     padding-left: 20px;
     margin-bottom: 25px;
 }
-/* --- YENİ TEKRAR OYNA BUTONU STİLİ --- */
+
 
 #restart-button {
     /* Genel Görünüm */
@@ -200,7 +200,7 @@ h1 {
     line-height: 1.4;
     font-weight: 500;
 }
-/* --- YENİ EKLENECEK CSS PARÇALARI --- */
+
 
 /* --- YENİ CAN SAYACI STİLİ (#lives-display) --- */
 
@@ -354,7 +354,7 @@ h1 {
     background-color: #008000; /* Yeşil */
 }
 #hint-capital {
-    background-color: #FFA500; /* Turuncu */
+    background-color: #4c00ff; 
 }
 
 .mode-button:disabled {
