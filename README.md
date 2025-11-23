@@ -44,7 +44,7 @@ The game layout is responsive and prioritizes map interaction and clear feedback
 | Scenario | Rule | Effect |
 | :--- | :--- | :--- |
 | **Time Limit** | 60 seconds total. | If the timer ends, the player loses. |
-| **Life System** | Start with **3 lives**; every **5 incorrect guesses** costs 1 life. | Total possible guesses = 15. |
+| **Life System** | Start with **3 lives**; every **3 incorrect guesses** costs 1 life. | Total possible guesses = 9. |
 | **High Score** | Based on minimal guesses and fastest completion. | Stored via Local Storage for persistence. |
 
 ### B. Technical Requirements
@@ -64,7 +64,7 @@ The game layout is responsive and prioritizes map interaction and clear feedback
 - User enters a **province name** or **clicks on the map**.  
 - **Incorrect guess** → Color feedback applied.  
 - Province is **colored based on distance** to the hidden province.  
-- **Every 5 incorrect guesses** → 1 life is lost.
+- **Every 3 incorrect guesses** → 1 life is lost.
 
 ### C. End
 - **Correct guess** → Win screen + score recorded.  

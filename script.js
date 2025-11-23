@@ -19,19 +19,21 @@ let countdownInterval;
 
 // NEW: Life System Variables
 const MAX_LIVES = 3;
-const GUESSES_PER_LIFE = 5; // UPDATED: Lose 1 life every 5 incorrect guesses
+const GUESSES_PER_LIFE = 3; // UPDATED: Lose 1 life every 3 incorrect guesses
 let currentLives = MAX_LIVES;
 let guessCounter = 0; 
 
 // Scoring and Color Settings (REVERSE Red-Yellow-Green scale)
 const COLORS = [
-    { maxDistanceKm: 100, color: '#008000' },     // Dark Green (Closest)
-    { maxDistanceKm: 250, color: '#32CD32' },   
-    { maxDistanceKm: 450, color: '#ADFF2F' },   
-    { maxDistanceKm: 650, color: '#FFD700' },   // Yellow
-    { maxDistanceKm: 850, color: '#FFA500' },   
-    { maxDistanceKm: 1000, color: '#FF4500' }, // Dark Orange
-    { maxDistanceKm: Infinity, color: '#FF0000' } // Red (Farthest)
+    { maxDistanceKm: 100, color: '#008000' },   // Koyu Yeşil (0 - 100 km)
+    { maxDistanceKm: 250, color: '#32CD32' },   // Parlak Yeşil (101 - 250 km)
+    { maxDistanceKm: 350, color: '#ADFF2F' },   // Açık Yeşil/Sarı (251 - 350 km)
+    { maxDistanceKm: 450, color: '#FFD700' },   // Sarı (351 - 450 km)
+    { maxDistanceKm: 550, color: '#FFA500' },   // Turuncu (451 - 550 km)
+    { maxDistanceKm: 650, color: '#FF4500' },   // Koyu Turuncu (551 - 650 km)
+    { maxDistanceKm: 750, color: '#E53935' },   // Kırmızımsı Turuncu (651 - 750 km)
+    { maxDistanceKm: 850, color: '#D32F2F' },   // Koyu Kırmızı (751 - 850 km)
+    { maxDistanceKm: Infinity, color: '#6d0909ff' } // Tam Kırmızı (851 km ve üzeri)
 ];
 
 // NEW HINT DATA (Lesser-known districts)
