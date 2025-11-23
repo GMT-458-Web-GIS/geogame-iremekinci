@@ -1,7 +1,8 @@
+
 # 🗺️ GeoGuessr: Turkey Province Guessing Game (Web GIS Project)
 
 This project is a GeoGame developed as part of the **GMT 458 – Web GIS** course. The player’s goal is to identify a hidden province in Turkey using geographic knowledge and spatial reasoning—under limited lives and a strict time limit.
-
+## PLAY GAME : https://gmt-458-web-gis.github.io/geogame-iremekinci/
 ---
 
 ## 🎯 Project Goals and Key Components
